@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Awareness 2026</title>
+    <style>
+        body { 
+            background-color: #1a1a1a; 
+            color: #fff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+        }
+        .card { 
+            background: #222; 
+            padding: 40px; 
+            border-radius: 12px; 
+            border-left: 5px solid #00ff7f; 
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .badge {
+            background-color: #00ff7f;
+            color: #000;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        h2 { 
+            color: #00ff7f; 
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+        p {
+            color: #aaa;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        .input-group label {
+            color: #888;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .input-group input { 
+            width: 100%; 
+            padding: 12px; 
+            background: #111; 
+            color: white; 
+            border: 1px solid #333; 
+            border-radius: 6px; 
+            margin-top: 8px;
+            margin-bottom: 25px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #00ff7f;
+        }
+        .btn-submit { 
+            width: 100%; 
+            padding: 15px; 
+            background-color: #00ff7f; 
+            color: #000; 
+            font-weight: bold; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.3s;
+        }
+        .btn-submit:hover { 
+            background-color: #00cc66; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="badge">FIDELIDADE & BÔNUS</div>
+        <h2>Eco-Awareness 2026</h2>
+        <p>Programa de Cashback Progressivo. Insira o ID do evento para distribuir os estornos aos participantes presentes.</p>
+        
+        <form action="/processar_cashback" method="POST">
+            <div class="input-group">
+                <label for="evento_id">ID do Evento Finalizado</label>
+                <input type="number" id="evento_id" name="evento_id" placeholder="Ex: 3" required min="1">
+            </div>
+            <button type="submit" class="btn-submit">Distribuir Créditos de Cashback</button>
+        </form>
+    </div>
+
+</body>
+</html>

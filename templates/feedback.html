@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status da Operação</title>
+
+    <style>
+        body { 
+            background-color: #1a1a1a; 
+            color: #fff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            text-align: center;
+        }
+        .card {
+            background: #222; 
+            padding: 40px; 
+            border-radius: 12px;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .success { color: #00ff7f; border-top: 4px solid #00ff7f;}
+        .error { color: #ff4c4c; border-top: 4px solid #ff4c4c; }
+        
+        h2 { font-size: 1.5rem; margin-bottom: 20px;}
+        p { color: #ccc; line-height: 1.6; margin-bottom: 30px;}
+        
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+        .btn-back:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card {{ status }}">
+        <h2>{{ 'Processamento Concluído' if status == 'success' else 'Atenção' }}</h2>
+        <p>{{ msg }}</p>
+        <a href="/" class="btn-back">Voltar para o Painel</a>
+    </div>
+    
+</body>
+</html>
