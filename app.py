@@ -32,17 +32,17 @@ def processar_cashback():
             CURSOR c_participantes IS
                 SELECT id AS inscricao_id, usuario_id, valor_pago, tipo
                 FROM inscricoes
-                WHERE evento_id = :p_evento_id;
-                   And status = 'PRESENT';
+                WHERE evento_id = :p_evento_id 
+                  AND status = 'PRESENT'; -- Corrigido: O ponto e vírgula é só no final!
 
-                   v_inscricao_id inscricoes.id%TYPE;
-                   v_usuario_id inscricoes.usuario_id%TYPE;
-                   v_valor_pago inscricoes.valor_pago%TYPE;
-                   v_tipo inscricoes.tipo%TYPE;
-                   
-                   v_total_presencas NUMBER;
-                   v_taxa_cashback NUMBER;
-                   v_valor_estorno NUMBER;
+            v_inscricao_id inscricoes.id%TYPE;
+            v_usuario_id inscricoes.usuario_id%TYPE;
+            v_valor_pago inscricoes.valor_pago%TYPE;
+            v_tipo inscricoes.tipo%TYPE;
+            
+            v_total_presencas NUMBER;
+            v_taxa_cashback NUMBER;
+            v_valor_estorno NUMBER;
         BEGIN
             OPEN c_participantes;
             
@@ -60,7 +60,7 @@ def processar_cashback():
                 -- Escalonamento (25%, 20% ou 10%)
                 IF v_total_presencas > 3 THEN
                     v_taxa_cashback := 0.25;
-                ELSEIF v_tipo = 'VIP' THEN
+                ELSIF v_tipo = 'VIP' THEN     -- Corrigido: Em PL/SQL se escreve ELSIF (sem o E do meio)
                     v_taxa_cashback := 0.20;
                 ELSE
                     v_taxa_cashback := 0.10;
@@ -76,26 +76,27 @@ def processar_cashback():
                 -- Insere o log de auditoria
                 INSERT INTO log_auditoria (inscricao_id, motivo, data)
                 VALUES(
-                    v_incricao_id,
+                    v_inscricao_id,           -- Corrigido: Faltava o "s" na sua variável
                     'Cashback: ' || (v_taxa_cashback * 100) || '% | Presenças: ' || v_total_presencas,
                     SYSDATE
                 );
 
-                END LOOP;
-
+            END LOOP;
             CLOSE c_participantes;
-
-            END;
+        END;
     """
 
-    conexao = get_db_connection()
-    cursor = conexao.cursor()
+    conexao = None
+    cursor = None
     try:
-        conexao = oracledb.connect()
+        # AQUI É O JEITO CERTO: Chama a função que tem as senhas da Vercel!
+        conexao = get_db_connection()
+        
+        if conexao is None:
+            return render_template('feedback.html', msg="Erro interno: Não foi possível conectar ao banco.", status="error")
+
         cursor = conexao.cursor()
-
         cursor.execute(plsql_block, p_evento_id=int(evento_id))
-
         conexao.commit()
 
         return render_template('feedback.html', 
