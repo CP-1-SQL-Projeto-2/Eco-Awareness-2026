@@ -1,0 +1,117 @@
+import oracledb
+from flask import Flask, request, render_template
+
+app = Flask(__name__)
+
+# Lógica de conexão com o banco (SEGURA - Usando Vercel Environment Variables)
+def get_db_connection():
+    try:
+        return oracledb.connect(
+            user=os.environ.get("DB_USER"),
+            password=os.environ.get("DB_PASSWORD"),
+            dsn=os.environ.get("DB_DSN")
+        )
+    except Exception as e:
+        print(f"Erro na conexão: {e}")
+        return None
+    
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/processar_cashback', methods=['POST'])
+def processar_cashback():
+    evento_id = request.form.get('evento_id')
+
+    if not evento_id or not evento_id.isdigit():
+        return render_template('feedback.html', message="ID do evento inválido. Por favor, insira um número válido.", status="error")
+    
+    plsql_block = """
+        DECLARE
+            CURSOR c_participantes IS
+                SELECT id AS inscricao_id, usuario_id, valor_pago, tipo
+                FROM inscricoes
+                WHERE evento_id = :p_evento_id;
+                   And status = 'PRESENT';
+
+                   v_inscricao_id inscricoes.id%TYPE;
+                   v_usuario_id inscricoes.usuario_id%TYPE;
+                   v_valor_pago inscricoes.valor_pago%TYPE;
+                   v_tipo inscricoes.tipo%TYPE;
+                   
+                   v_total_presencas NUMBER;
+                   v_taxa_cashback NUMBER;
+                   v_valor_estorno NUMBER;
+        BEGIN
+            OPEN c_participantes;
+            
+            LOOP
+                FETCH c_participantes INTO v_inscricao_id, v_usuario_id, v_valor_pago, v_tipo;
+                EXIT WHEN c_participantes%NOTFOUND;
+
+                -- contagem de histórico
+                SELECT COUNT(id)
+                INTO v_total_presencas
+                FROM inscricoes
+                WHERE usuario_id = v_usuario_id
+                  AND status = 'PRESENT';
+
+                -- Escalonamento (25%, 20% ou 10%)
+                IF v_total_presencas > 3 THEN
+                    v_taxa_cashback := 0.25;
+                ELSEIF v_tipo = 'VIP' THEN
+                    v_taxa_cashback := 0.20;
+                ELSE
+                    v_taxa_cashback := 0.10;
+                END IF;
+
+                v_valor_estorno := v_valor_pago * v_taxa_cashback;
+                
+                -- Atualiza o saldo do usuário
+                UPDATE usuarios
+                SET saldo = NVL(saldo, 0) + v_valor_estorno
+                WHERE id = v_usuario_id;
+
+                -- Insere o log de auditoria
+                INSERT INTO log_auditoria (inscricao_id, motivo, data)
+                VALUES(
+                    v_incricao_id,
+                    'Cashback: ' || (v_taxa_cashback * 100) || '% | Presenças: ' || v_total_presencas,
+                    SYSDATE
+                );
+
+                END LOOP;
+
+            CLOSE c_participantes;
+
+            END;
+    """
+
+    conexao = get_db_connection()
+    cursor = conexao.cursor()
+    try:
+        conexao = oracledb.connect(DSN)
+        cursor = conexao.cursor()
+
+        cursor.execute(plsql_block, p_evento_id=int(evento_id))
+
+        conexao.commit()
+
+        return render_template('feedback.html', 
+                               msg="Sucesso! Distribuição de cashback concluída.", 
+                               status="success")
+    
+    except Exception as e:
+        if conexao:
+            conexao.rollback()
+        return render_template('feedback.html', 
+                               msg=f"Erro ao processar cashback: {str(e)}", 
+                               status="error")
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao:
+            conexao.close()
+
+if __name__ == '__main__':    
+    app.run(debug=True)
