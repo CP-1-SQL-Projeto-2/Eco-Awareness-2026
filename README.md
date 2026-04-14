@@ -81,6 +81,7 @@ Para a execução deste projeto, a equipe dividiu as tarefas seguindo o modelo d
 
 ## 👥 Integrantes
 João Pedro Pereira Camilo | RM 562005
+
 Pamella Christiny Chaves Brito |  RM 565206
 
 ## 📝 Licença
