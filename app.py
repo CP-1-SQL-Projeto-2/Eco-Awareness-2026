@@ -91,7 +91,7 @@ def processar_cashback():
     conexao = get_db_connection()
     cursor = conexao.cursor()
     try:
-        conexao = oracledb.connect(DSN)
+        conexao = oracledb.connect()
         cursor = conexao.cursor()
 
         cursor.execute(plsql_block, p_evento_id=int(evento_id))
