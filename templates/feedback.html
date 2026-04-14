@@ -13,7 +13,7 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            height: 100vh; 
+            min-height: 100vh; /* Mudei para min-height caso a tabela cresça */
             margin: 0;
             text-align: center;
         }
@@ -21,8 +21,10 @@
             background: #222; 
             padding: 40px; 
             border-radius: 12px;
-            max-width: 500px;
+            width: 90%; /* Ajuste para responsividade */
+            max-width: 600px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin: 20px;
         }
         .success { color: #00ff7f; border-top: 4px solid #00ff7f;}
         .error { color: #ff4c4c; border-top: 4px solid #ff4c4c; }
@@ -30,6 +32,11 @@
         h2 { font-size: 1.5rem; margin-bottom: 20px;}
         p { color: #ccc; line-height: 1.6; margin-bottom: 30px;}
         
+        /* Estilo da Tabela seguindo seu padrão Dark */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: #2a2a2a; border-radius: 8px; overflow: hidden; }
+        th { background: #333; color: #00ff7f; padding: 12px; font-size: 0.8rem; text-transform: uppercase; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #333; text-align: left; font-size: 0.9rem; color: #eee; }
+
         .btn-back {
             display: inline-block;
             padding: 10px 20px;
@@ -39,9 +46,11 @@
             border-radius: 6px;
             transition: background-color 0.3s;
         }
-        .btn-back:hover {
-            background-color: #555;
-        }
+        .btn-back:hover { background-color: #555; }
+
+        .resultado-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 0.9rem; }
+        .resultado-table th { color: #00ff7f; text-align: left; padding: 8px; border-bottom: 1px solid #444; }
+        .resultado-table td { text-align: left; padding: 8px; border-bottom: 1px solid #333; color: #eee; }
     </style>
 </head>
 <body>
@@ -49,6 +58,26 @@
     <div class="card {{ status }}">
         <h2>{{ 'Processamento Concluído' if status == 'success' else 'Atenção' }}</h2>
         <p>{{ msg }}</p>
+
+        {% if resultados %}
+        <table class="resultado-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Motivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for linha in resultados %}
+                <tr>
+                    <td>{{ linha[0] }}</td>
+                    <td>{{ linha[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
         <a href="/" class="btn-back">Voltar para o Painel</a>
     </div>
     

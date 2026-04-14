@@ -89,7 +89,6 @@ def processar_cashback():
     conexao = None
     cursor = None
     try:
-        # AQUI É O JEITO CERTO: Chama a função que tem as senhas da Vercel!
         conexao = get_db_connection()
         
         if conexao is None:
@@ -99,9 +98,20 @@ def processar_cashback():
         cursor.execute(plsql_block, p_evento_id=int(evento_id))
         conexao.commit()
 
+        query_resultados = """
+            SELECT u.nome, l.motivo 
+            FROM log_auditoria l
+            JOIN inscricoes i ON l.inscricao_id = i.id
+            JOIN usuarios u ON i.usuario_id = u.id
+            WHERE i.evento_id = :p_id AND l.data >= SYSDATE - (1/1440)
+        """
+        cursor.execute(query_resultados, p_id=int(evento_id))
+        relatorio = cursor.fetchall()
+
         return render_template('feedback.html', 
                                msg="Sucesso! Distribuição de cashback concluída.", 
-                               status="success")
+                               status="success",
+                               resultados=relatorio)
     
     except Exception as e:
         if conexao:
